@@ -1,0 +1,35 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © rohankaran829
+
+//@version=5
+strategy("My strategy", overlay=true, margin_long=100, margin_short=100)
+
+//indicator -1 c1 trigger/confirmation
+Ind_1_Check_Trig =input(true,title="Indicator-1-C1-Trigger")
+
+//Aroon indicator   
+// indicator(title="Aroon", shorttitle="Aroon", overlay=false, format=format.percent, precision=2, timeframe="", timeframe_gaps=true)
+Aroonlength = input.int(14, minval=1)
+Aroonupper = 100 * (ta.highestbars(high, Aroonlength) + Aroonlength)/Aroonlength
+Aroonlower = 100 * (ta.lowestbars(low, Aroonlength) + Aroonlength)/Aroonlength
+
+//cross long short orders
+Ind_1_L_Trigger=Ind_1_Check_Trig ? ta.crossover(Aroonupper,Aroonlower)?true:false:false
+Ind_1_S_Trigger=Ind_1_Check_Trig ? ta.crossunder(Aroonupper,Aroonlower)?true:false:false
+
+//entry condition-submit order
+longCondition1=strategy.position_size<=0 and Ind_1_L_Trigger
+shortCondition1=strategy.position_size>=0 and Ind_1_S_Trigger
+plotshape(longCondition1 or shortCondition1,color = color.orange, style=shape.square,location = location.bottom,transp=75,size=size.tiny)
+
+//define long and short variable
+entry_long=longCondition1
+entry_short=shortCondition1
+
+//submit long and short order based on entry condition 
+
+if(entry_long)
+    strategy.entry("Long Entry 1",strategy.long ,1)
+if(entry_short)
+    strategy.entry("Short Entry 1",strategy.short,1)
+
